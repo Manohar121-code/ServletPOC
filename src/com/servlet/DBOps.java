@@ -3,7 +3,10 @@ package com.servlet;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBOps {
 	
@@ -40,8 +43,51 @@ public class DBOps {
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
+				
 			}
 		}
+	}
+	
+	public List<Employee> getEmployees() {
+		List<Employee> list = new ArrayList<Employee>();
+		
+		Connection connection = null;
+		PreparedStatement prepareStatement = null;
+		
+		try {
+			Class.forName(dbDriver);
+			String sql = "select * from employee";
+			
+			connection = DriverManager.getConnection(url, userName, password);
+			prepareStatement = connection.prepareStatement(sql);
+			
+			ResultSet resultSet = prepareStatement.executeQuery();
+			while (resultSet.next()) {
+				int id = resultSet.getInt("id");
+				String name = resultSet.getString("name");
+				int age = resultSet.getInt("age");
+				double salary = resultSet.getDouble("salary");
+				
+				Employee emp = new Employee(name, age, salary);
+				emp.setId(id);
+				
+				list.add(emp);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (connection != null && prepareStatement != null) {
+					connection.close();
+					prepareStatement.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return list;
 	}
 	
 	
